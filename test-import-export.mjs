@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import { csvCell, parseCSV, range, compact } from './dist/utilities.mjs';
+assert.equal(range(780,1560),'RM7.80–15.60');
+assert.equal(range(3900,7800),'RM39–78');
+assert.equal(range(146000000,272000000),'RM1.46–2.72m');
+assert.equal(compact(20),'RM0.20');
+assert.equal(csvCell(-500),'"-500"');
+assert.equal(csvCell('-1+1'),'"\'-1+1"');
+assert.equal(csvCell('  =1+1'),'"\'  =1+1"');
+assert.equal(csvCell('-2+HYPERLINK("https://example.test","x")'),'"\'-2+HYPERLINK(""https://example.test"",""x"")"');
+assert.equal(csvCell('a"b'),'"a""b"');
+assert.deepEqual(parseCSV('a,b\r\n"hello, world","a""b"\r\n'),[['a','b'],['hello, world','a"b']]);
+assert.deepEqual(parseCSV('a,b\n"one\ntwo",3'),[['a','b'],['one\ntwo','3']]);
+assert.throws(()=>parseCSV('a,b\n"unclosed,3'),/not closed/);
+assert.throws(()=>parseCSV('a,b\n"one"oops,3'),/Unexpected characters/);
+assert.deepEqual(parseCSV(['month','amount'].map(csvCell).join(',')+'\n'+['2026-01',-500].map(csvCell).join(',')),[['month','amount'],['2026-01','-500']]);
+console.log('CSV parser, formula-injection defense, credit roundtrip, and small-value formatting checks passed.');
