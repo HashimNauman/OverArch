@@ -12,6 +12,12 @@ This browser-local MVP starts with **12 countries**, **24 fictional suppliers**,
 
 The interface uses **Onyx `#01010D`**, **Electric Indigo `#6331FB`**, and **Tropical Mint `#88F9C0`**.
 
+## Dashboard preview
+
+![OverArch global spend dashboard](docs/overarch-dashboard.jpg)
+
+[Private hosted demo](https://overarch-spend-atlas.hashimnauman.chatgpt.site) — requires the owner's ChatGPT sign-in. This repository contains the complete browser-local MVP; follow the local setup below to explore it independently.
+
 ## Explore the portfolio
 
 - **Spend overview:** Review overall net spend, shared-supplier spend, supplier concentration, category mix, and an interactive geographic footprint.
