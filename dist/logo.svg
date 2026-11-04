@@ -1,20 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="332" height="60" viewBox="0 0 332 60" fill="none" role="img" aria-labelledby="title desc">
   <title id="title">OverArch</title>
   <desc id="desc">The OverArch wordmark beside a bridge of numbers connecting two geographic locations.</desc>
-  <rect width="100" height="60" rx="12" fill="#071C35"/>
-  <path d="M20 36C31 7 69 7 80 36" stroke="#0042AC" stroke-width="5" stroke-linecap="round"/>
-  <path d="M27 31V43M39 24V43M51 21V43M63 24V43M75 31V43" stroke="#00D3FB" stroke-opacity=".35" stroke-width="1.25"/>
-  <path d="M18 43H82" stroke="#00D3FB" stroke-width="2" stroke-linecap="round"/>
-  <g stroke="#F4FCFF" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">
+  <rect width="100" height="60" rx="12" fill="#01010D"/>
+  <path d="M20 36C31 7 69 7 80 36" stroke="#6331FB" stroke-width="5" stroke-linecap="round"/>
+  <path d="M27 31V43M39 24V43M51 21V43M63 24V43M75 31V43" stroke="#88F9C0" stroke-opacity=".35" stroke-width="1.25"/>
+  <path d="M18 43H82" stroke="#88F9C0" stroke-width="2" stroke-linecap="round"/>
+  <g stroke="#88F9C0" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">
     <path d="M25 24C22.4 24 22.4 31 25 31C27.6 31 27.6 24 25 24Z"/>
     <path d="M36 18L38 16V24M35.5 24H40.5"/>
     <path d="M47 13C47 9 53 9 53 13C53 15 47 16 47 19H53"/>
     <path d="M60 17C64 14 67 19 62 20C67 20 67 26 61 24"/>
     <path d="M76 25H71V28C77 26 79 33 72 33"/>
   </g>
-  <path d="M16 34C11.6 34 8 37.5 8 41.8C8 47.6 16 53 16 53C16 53 24 47.6 24 41.8C24 37.5 20.4 34 16 34Z" fill="#0042AC" stroke="#88E8FF" stroke-width="1"/>
-  <circle cx="16" cy="41.5" r="2.6" fill="#00D3FB"/>
-  <path d="M84 34C79.6 34 76 37.5 76 41.8C76 47.6 84 53 84 53C84 53 92 47.6 92 41.8C92 37.5 88.4 34 84 34Z" fill="#00D3FB"/>
-  <circle cx="84" cy="41.5" r="2.6" fill="#071C35"/>
-  <text x="114" y="42" fill="#071C35" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-weight="750" font-size="39" letter-spacing="-1.6">OverArch</text>
+  <path d="M16 34C11.6 34 8 37.5 8 41.8C8 47.6 16 53 16 53C16 53 24 47.6 24 41.8C24 37.5 20.4 34 16 34Z" fill="#88F9C0" stroke="#88F9C0" stroke-width="1"/>
+  <circle cx="16" cy="41.5" r="2.6" fill="#01010D"/>
+  <path d="M84 34C79.6 34 76 37.5 76 41.8C76 47.6 84 53 84 53C84 53 92 47.6 92 41.8C92 37.5 88.4 34 84 34Z" fill="#88F9C0"/>
+  <circle cx="84" cy="41.5" r="2.6" fill="#01010D"/>
+  <text x="114" y="42" fill="#88F9C0" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-weight="750" font-size="39" letter-spacing="-1.6">OverArch</text>
 </svg>

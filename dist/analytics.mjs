@@ -3,15 +3,46 @@ import { vendors as defaultVendors, units as defaultUnits } from './data.mjs';
 const sum = values => values.reduce((total, value) => total + value, 0);
 const vendorNames = new Map(defaultVendors.map(vendor => [vendor.id, vendor.name]));
 const unitNames = new Map(defaultUnits.map(unit => [unit.id, unit.name]));
+const unitGeography = new Map(defaultUnits.map(unit => [unit.id, { continent: unit.continent, country: unit.country }]));
 
-export function filterRows(rows, { period = '2026', category = 'all', unit = 'all', search = '' } = {}) {
+export function filterRows(rows, { period = '2026', category = 'all', unit = 'all', continent = 'all', month = 'all', supplier = 'all', search = '' } = {}) {
   const query = String(search).trim().toLocaleLowerCase();
   return rows.filter(row =>
     (period === 'all' || row.month.slice(0, 4) === String(period)) &&
     (category === 'all' || row.category === category) &&
     (unit === 'all' || row.unitId === unit) &&
-    (!query || `${row.vendorName || vendorNames.get(row.vendorId) || ''} ${row.vendorId} ${row.category} ${row.unitName || unitNames.get(row.unitId) || ''}`.toLocaleLowerCase().includes(query))
+    (continent === 'all' || (row.continent || unitGeography.get(row.unitId)?.continent) === continent) &&
+    (month === 'all' || row.month === month) &&
+    (supplier === 'all' || row.vendorId === supplier) &&
+    (!query || `${row.vendorName || vendorNames.get(row.vendorId) || ''} ${row.vendorId} ${row.category} ${row.unitName || unitNames.get(row.unitId) || ''} ${row.country || unitGeography.get(row.unitId)?.country || ''} ${row.continent || unitGeography.get(row.unitId)?.continent || ''}`.toLocaleLowerCase().includes(query))
   );
+}
+
+export function priorYearRows(rows, filters = {}, { fullPeriod = false } = {}) {
+  const period = String(filters.period ?? '2026');
+  if (period === 'all') return [];
+  const currentRows = filterRows(rows, { ...filters, period, month: fullPeriod ? 'all' : filters.month || 'all' });
+  const coveredMonths = new Set(currentRows.map(row => row.month.slice(5)));
+  return filterRows(rows, { ...filters, period: String(Number(period) - 1), month: 'all' })
+    .filter(row => coveredMonths.has(row.month.slice(5)));
+}
+
+export function groupTrend(rows) {
+  const grouped = new Map();
+  for (const row of rows) {
+    if (!Number.isSafeInteger(row.amount)) throw new TypeError('Spend amounts must be safe integer sen.');
+    grouped.set(row.month, (grouped.get(row.month) || 0) + row.amount);
+  }
+  return [...grouped].sort(([a], [b]) => a.localeCompare(b)).map(([month, total]) => ({ month, total }));
+}
+
+export function categoryBreakdown(rows) {
+  const grouped = new Map();
+  for (const row of rows) {
+    if (!Number.isSafeInteger(row.amount)) throw new TypeError('Spend amounts must be safe integer sen.');
+    grouped.set(row.category, (grouped.get(row.category) || 0) + row.amount);
+  }
+  return [...grouped].map(([name, total]) => ({ name, total })).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
 }
 
 export function summarize(rows, unitList, vendorList) {
@@ -56,15 +87,27 @@ export function summarize(rows, unitList, vendorList) {
     .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
   const opportunities = vendorStats.filter(vendor => vendor.unitCount >= 2 && vendor.total > 0 && vendor.estimateHigh > 0)
     .sort((a, b) => b.estimateHigh - a.estimateHigh || b.total - a.total);
+  const continentMap = new Map();
+  for (const unit of unitStats) {
+    const name = unit.continent || 'Unassigned';
+    if (!continentMap.has(name)) continentMap.set(name, { name, total: 0, countries: new Set() });
+    const continent = continentMap.get(name);
+    continent.total += unit.total;
+    if (unit.vendorCount > 0) continent.countries.add(unit.country || unit.name);
+  }
+  const continentStats = [...continentMap.values()]
+    .map(({ name, total, countries }) => ({ name, total, countryCount: countries.size }))
+    .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
   return {
     total: sum(rows.map(row => row.amount)),
     sharedSpend: sum(shared.map(vendor => vendor.total)),
     sharedCount: shared.length,
     activeUnitCount: unitStats.filter(unit => unit.vendorCount > 0).length,
+    activeContinentCount: continentStats.filter(continent => continent.countryCount > 0).length,
     vendorCount: vendorStats.filter(vendor => vendor.unitCount > 0).length,
     positiveSpend: sum(vendorStats.map(vendor => Math.max(0, vendor.total))),
     estimatedLow: sum(opportunities.map(vendor => vendor.estimateLow)),
     estimatedHigh: sum(opportunities.map(vendor => vendor.estimateHigh)),
-    vendorStats, unitStats, opportunities,
+    vendorStats, unitStats, opportunities, continentStats,
   };
 }

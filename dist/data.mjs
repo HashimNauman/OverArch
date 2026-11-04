@@ -1,17 +1,20 @@
 // Fictional demonstration data. Amounts are integer Malaysian sen.
+export const continents = ['Asia', 'Europe', 'North America'];
+
+// Coordinates are approximate country centroids for the illustrative map.
 export const units = [
-  { id: 'bu-01', name: 'Group Corporate', code: 'GCO', city: 'Kuala Lumpur', country: 'Malaysia' },
-  { id: 'bu-02', name: 'Consumer Products', code: 'CON', city: 'Penang', country: 'Malaysia' },
-  { id: 'bu-03', name: 'Industrial Solutions', code: 'IND', city: 'Johor Bahru', country: 'Malaysia' },
-  { id: 'bu-04', name: 'Digital Ventures', code: 'DIG', city: 'Singapore', country: 'Singapore' },
-  { id: 'bu-05', name: 'Retail & Commerce', code: 'RET', city: 'Jakarta', country: 'Indonesia' },
-  { id: 'bu-06', name: 'Food & Agriculture', code: 'AGR', city: 'Bangkok', country: 'Thailand' },
-  { id: 'bu-07', name: 'Healthcare Services', code: 'HEA', city: 'Manila', country: 'Philippines' },
-  { id: 'bu-08', name: 'Energy & Utilities', code: 'ENE', city: 'Kuching', country: 'Malaysia' },
-  { id: 'bu-09', name: 'Property & Hospitality', code: 'PRO', city: 'Ho Chi Minh City', country: 'Vietnam' },
-  { id: 'bu-10', name: 'Mobility & Distribution', code: 'MOB', city: 'Surabaya', country: 'Indonesia' },
-  { id: 'bu-11', name: 'Engineering & Projects', code: 'ENG', city: 'Shah Alam', country: 'Malaysia' },
-  { id: 'bu-12', name: 'Media & Experiences', code: 'MED', city: 'Singapore', country: 'Singapore' },
+  { id: 'bu-01', name: 'Malaysia', code: 'MYS', city: 'Kuala Lumpur', country: 'Malaysia', continent: 'Asia', lat: 4.21, lon: 101.98 },
+  { id: 'bu-02', name: 'Singapore', code: 'SGP', city: 'Singapore', country: 'Singapore', continent: 'Asia', lat: 1.35, lon: 103.82 },
+  { id: 'bu-03', name: 'Japan', code: 'JPN', city: 'Tokyo', country: 'Japan', continent: 'Asia', lat: 36.20, lon: 138.25 },
+  { id: 'bu-04', name: 'India', code: 'IND', city: 'Bengaluru', country: 'India', continent: 'Asia', lat: 20.59, lon: 78.96 },
+  { id: 'bu-05', name: 'United Kingdom', code: 'GBR', city: 'London', country: 'United Kingdom', continent: 'Europe', lat: 55.38, lon: -3.44 },
+  { id: 'bu-06', name: 'Germany', code: 'DEU', city: 'Frankfurt', country: 'Germany', continent: 'Europe', lat: 51.17, lon: 10.45 },
+  { id: 'bu-07', name: 'France', code: 'FRA', city: 'Paris', country: 'France', continent: 'Europe', lat: 46.23, lon: 2.21 },
+  { id: 'bu-08', name: 'Netherlands', code: 'NLD', city: 'Amsterdam', country: 'Netherlands', continent: 'Europe', lat: 52.13, lon: 5.29 },
+  { id: 'bu-09', name: 'United States', code: 'USA', city: 'New York', country: 'United States', continent: 'North America', lat: 39.83, lon: -98.58 },
+  { id: 'bu-10', name: 'Canada', code: 'CAN', city: 'Toronto', country: 'Canada', continent: 'North America', lat: 56.13, lon: -106.35 },
+  { id: 'bu-11', name: 'Mexico', code: 'MEX', city: 'Mexico City', country: 'Mexico', continent: 'North America', lat: 23.63, lon: -102.55 },
+  { id: 'bu-12', name: 'Costa Rica', code: 'CRI', city: 'San José', country: 'Costa Rica', continent: 'North America', lat: 9.75, lon: -83.75 },
 ];
 
 export const categories = [
@@ -21,9 +24,9 @@ export const categories = [
 
 // Opportunity rates and addressable shares are illustrative assumptions, not benchmarks.
 export const vendors = [
-  { id: 'v01', name: 'Nimbus Cloud', category: 'Cloud & software', color: '#0042AC', eligibleShare: .75, lowRate: .05, highRate: .09, strategy: 'Group cloud agreement', nextStep: 'Combine unit consumption and renewal dates, then request a group commitment proposal.', owner: 'Group IT Procurement' },
+  { id: 'v01', name: 'Nimbus Cloud', category: 'Cloud & software', color: '#0042AC', eligibleShare: .75, lowRate: .05, highRate: .09, strategy: 'Group cloud agreement', nextStep: 'Combine country consumption and renewal dates, then request a group commitment proposal.', owner: 'Group IT Procurement' },
   { id: 'v02', name: 'Meridian Logistics', category: 'Logistics', color: '#00A7CA', eligibleShare: .65, lowRate: .04, highRate: .08, strategy: 'Bundle common freight lanes', nextStep: 'Map shared lanes and service levels before running a consolidated freight tender.', owner: 'Regional Logistics' },
-  { id: 'v03', name: 'Atlas Workspace', category: 'Office & workplace', color: '#596CE4', eligibleShare: .80, lowRate: .04, highRate: .07, strategy: 'Standardize the group catalogue', nextStep: 'Agree a core office catalogue and compare unit prices for matching items.', owner: 'Indirect Procurement' },
+  { id: 'v03', name: 'Atlas Workspace', category: 'Office & workplace', color: '#596CE4', eligibleShare: .80, lowRate: .04, highRate: .07, strategy: 'Standardize the group catalogue', nextStep: 'Agree a core office catalogue and compare local prices for matching items.', owner: 'Indirect Procurement' },
   { id: 'v04', name: 'Vertex Advisory', category: 'Professional services', color: '#578BA4', eligibleShare: .45, lowRate: .03, highRate: .06, strategy: 'Negotiate a common rate card', nextStep: 'Normalize role descriptions, seniority bands, and deliverables across statements of work.', owner: 'Professional Services Lead' },
   { id: 'v05', name: 'Orbit Telecom', category: 'Telecom', color: '#096DAF', eligibleShare: .80, lowRate: .06, highRate: .10, strategy: 'Pool connectivity contracts', nextStep: 'Audit active lines and sites, remove dormant services, and seek a pooled tariff.', owner: 'Group IT Procurement' },
   { id: 'v06', name: 'Strata Facilities', category: 'Facilities', color: '#7389B2', eligibleShare: .60, lowRate: .03, highRate: .06, strategy: 'Bundle regional facilities services', nextStep: 'Compare site scopes and service levels, then consolidate comparable service packages.', owner: 'Facilities Category Lead' },
@@ -84,3 +87,9 @@ transactions.push({ id: 'credit-2026-v03-bu01', month: '2026-06', unitId: 'bu-01
 transactions.push({ id: 'credit-2025-v05-bu04', month: '2025-11', unitId: 'bu-04', vendorId: 'v05', category: 'Telecom', amount: -1_250_000 });
 const actual2026Total = transactions.filter(row => row.month.startsWith('2026')).reduce((sum, row) => sum + row.amount, 0);
 transactions.find(row => row.month === '2026-09' && row.vendorId === 'v01').amount += target2026Sen - actual2026Total;
+const unitGeography = new Map(units.map(unit => [unit.id, unit]));
+for (const row of transactions) {
+  const unit = unitGeography.get(row.unitId);
+  row.continent = unit.continent;
+  row.country = unit.country;
+}
