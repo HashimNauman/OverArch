@@ -16,7 +16,9 @@ The interface uses **Onyx `#01010D`**, **Electric Indigo `#6331FB`**, and **Trop
 
 ![OverArch global spend dashboard](docs/overarch-dashboard.jpg)
 
-[Private hosted demo](https://overarch-spend-atlas.hashimnauman.chatgpt.site) — requires the owner's ChatGPT sign-in. This repository contains the complete browser-local MVP; follow the local setup below to explore it independently.
+[Open OverArch on GitHub Pages](https://hashimnauman.github.io/OverArch/)
+
+The repository-root `index.html` is the complete standalone app. Download that one file and open it in a browser, or upload it to any static host. All styles, JavaScript, demo data, logos, map geometry, and fonts are embedded; no server, dependency installation, or external runtime assets are required.
 
 ## Explore the portfolio
 
@@ -64,15 +66,23 @@ Loading a CSV replaces the demo for the current session and starts an empty impo
 
 Demo action owners and statuses are saved in this browser under the local storage key `overarch-country-plan-v2`. There are no shared team records.
 
-## Run locally
+## Open or rebuild the single HTML file
 
-From this project directory:
+Open `index.html` directly in your browser. An optional local HTTP preview can be started from this project directory:
 
 ```sh
-python3 -m http.server 4173 --directory dist
+python3 -m http.server 4173
 ```
 
 Open [OverArch locally](http://localhost:4173).
+
+To regenerate the standalone HTML after editing the modular source in `dist/`:
+
+```sh
+node scripts/build-html.mjs
+```
+
+GitHub Pages publishes the root of `main` with Jekyll disabled by `.nojekyll`. Pushing an updated `index.html` updates the public app.
 
 Run the analytics and CSV utility checks:
 
@@ -82,7 +92,9 @@ node test-analytics.mjs && node test-import-export.mjs
 
 ## Source and attribution
 
-- `dist/index.html` — application entry point
+- `index.html` — self-contained app and GitHub Pages entry point
+- `scripts/build-html.mjs` — dependency-free standalone packager
+- `dist/index.html` — source HTML template
 - `dist/app.mjs` — navigation, filters, import/export, and action state
 - `dist/dashboard.mjs` — overall spend dashboard and interactive visualizations
 - `dist/data.mjs` — synthetic spend and country geography
@@ -94,6 +106,8 @@ node test-analytics.mjs && node test-import-export.mjs
 - `test-analytics.mjs` and `test-import-export.mjs` — analytical and CSV utility checks
 
 The map land geometry derives from the public-domain **Natural Earth 1:110m land polygons**, distributed through [Natural Earth vector data](https://github.com/nvkelso/natural-earth-vector). Country markers are illustrative approximate centroids, rather than supplier or office locations.
+
+The embedded DM Sans and Manrope font subsets are redistributed under SIL Open Font License 1.1. License notices are included in `assets/fonts/` and embedded in the HTML.
 
 ## Next steps
 
