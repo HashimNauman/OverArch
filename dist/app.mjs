@@ -1,7 +1,7 @@
-import { units as demoUnits, vendors as demoVendors, categories as demoCategories, transactions as demoTransactions } from './data.mjs';
-import { filterRows, summarize, priorYearRows } from './analytics.mjs';
-import { money, compact, range, csvCell, parseCSV } from './utilities.mjs';
-import { dashboard } from './dashboard.mjs';
+import { units as demoUnits, vendors as demoVendors, categories as demoCategories, transactions as demoTransactions } from './data.mjs?v=20261104.2';
+import { filterRows, summarize, priorYearRows } from './analytics.mjs?v=20261104.2';
+import { money, compact, range, csvCell, parseCSV } from './utilities.mjs?v=20261104.2';
+import { dashboard } from './dashboard.mjs?v=20261104.2';
 
 let dataset = { units: demoUnits, vendors: demoVendors, categories: demoCategories, rows: demoTransactions, demo: true };
 let view = 'overview';

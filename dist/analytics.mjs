@@ -1,4 +1,4 @@
-import { vendors as defaultVendors, units as defaultUnits } from './data.mjs';
+import { vendors as defaultVendors, units as defaultUnits } from './data.mjs?v=20261104.2';
 
 const sum = values => values.reduce((total, value) => total + value, 0);
 const vendorNames = new Map(defaultVendors.map(vendor => [vendor.id, vendor.name]));

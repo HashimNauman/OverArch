@@ -1,6 +1,6 @@
-import { groupTrend, categoryBreakdown } from './analytics.mjs';
-import { compact, money, range } from './utilities.mjs';
-import { landPath } from './world-land.mjs';
+import { groupTrend, categoryBreakdown } from './analytics.mjs?v=20261104.2';
+import { compact, money, range } from './utilities.mjs?v=20261104.2';
+import { landPath } from './world-land.mjs?v=20261104.2';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pct = n => new Intl.NumberFormat('en-MY',{style:'percent',maximumFractionDigits:1}).format(n);
