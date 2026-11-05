@@ -1,4 +1,4 @@
-import { vendors as defaultVendors, units as defaultUnits } from './data.mjs?v=20261104.2';
+import { vendors as defaultVendors, units as defaultUnits } from './data.mjs?v=20261106.1';
 
 const sum = values => values.reduce((total, value) => total + value, 0);
 const vendorNames = new Map(defaultVendors.map(vendor => [vendor.id, vendor.name]));
@@ -30,16 +30,45 @@ export function priorYearRows(rows, filters = {}, { fullPeriod = false } = {}) {
 export function groupTrend(rows) {
   const grouped = new Map();
   for (const row of rows) {
-    if (!Number.isSafeInteger(row.amount)) throw new TypeError('Spend amounts must be safe integer sen.');
+    if (!Number.isSafeInteger(row.amount)) throw new TypeError('Spend amounts must be safe integer cents.');
     grouped.set(row.month, (grouped.get(row.month) || 0) + row.amount);
   }
   return [...grouped].sort(([a], [b]) => a.localeCompare(b)).map(([month, total]) => ({ month, total }));
 }
 
+// Category overlap is a sourcing signal, never an additional savings estimate.
+export function overlapAnalysis(rows, unitList, vendorList) {
+  const categoryMap = new Map();
+  const names = new Map(vendorList.map(v => [v.id, v.name]));
+  for (const r of rows) {
+    if (!Number.isSafeInteger(r.amount)) throw new TypeError('Spend amounts must be safe integer cents.');
+    if (!categoryMap.has(r.category)) categoryMap.set(r.category, {name:r.category,total:0,byUnit:{},suppliers:new Map()});
+    const c=categoryMap.get(r.category);c.total+=r.amount;c.byUnit[r.unitId]=(c.byUnit[r.unitId]||0)+r.amount;
+    if (!c.suppliers.has(r.vendorId)) c.suppliers.set(r.vendorId, {});
+    const v=c.suppliers.get(r.vendorId);v[r.unitId]=(v[r.unitId]||0)+r.amount;
+  }
+  const categories=[...categoryMap.values()].map(c=>{
+    const suppliers=[...c.suppliers].map(([id,byUnit])=>({id,name:names.get(id)||id,byUnit,unitCount:Object.values(byUnit).filter(n=>n>0).length})).filter(v=>v.unitCount>0);
+    const unitCount=Object.values(c.byUnit).filter(n=>n>0).length;
+    const exclusive=suppliers.filter(v=>v.unitCount===1);
+    const fragmented=unitCount>=2&&exclusive.length>0&&suppliers.length>1;
+    return {name:c.name,total:c.total,byUnit:c.byUnit,unitCount,suppliers,vendorCount:suppliers.length,sharedSupplierCount:suppliers.filter(v=>v.unitCount>=2).length,exclusiveSupplierCount:exclusive.length,fragmented,
+      strategy:fragmented?'Compare supplier panels':'Align scopes and renewal dates',
+      nextStep:fragmented?'Different supplier choices serve this category. Match specifications and service levels, then test a shared panel or coordinated tender.':'The category already has common suppliers. Check comparable scopes, LBU rate cards and renewal dates for a joint negotiation.'};
+  }).filter(c=>c.unitCount>=2).sort((a,b)=>Number(b.fragmented)-Number(a.fragmented)||b.total-a.total||a.name.localeCompare(b.name));
+  const s=summarize(rows,unitList,vendorList),pairs=[];
+  for(let i=0;i<unitList.length;i++) for(let j=i+1;j<unitList.length;j++) {
+    const a=unitList[i],b=unitList[j];
+    const shared=s.vendorStats.filter(v=>(v.byUnit[a.id]||0)>0&&(v.byUnit[b.id]||0)>0);
+    pairs.push({a,b,supplierCount:shared.length,spend:shared.reduce((n,v)=>n+v.byUnit[a.id]+v.byUnit[b.id],0)});
+  }
+  return {categories,pairs,fragmentedCount:categories.filter(c=>c.fragmented).length};
+}
+
 export function categoryBreakdown(rows) {
   const grouped = new Map();
   for (const row of rows) {
-    if (!Number.isSafeInteger(row.amount)) throw new TypeError('Spend amounts must be safe integer sen.');
+    if (!Number.isSafeInteger(row.amount)) throw new TypeError('Spend amounts must be safe integer cents.');
     grouped.set(row.category, (grouped.get(row.category) || 0) + row.amount);
   }
   return [...grouped].map(([name, total]) => ({ name, total })).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
@@ -49,7 +78,7 @@ export function summarize(rows, unitList, vendorList) {
   const vendorMap = new Map(vendorList.map(vendor => [vendor.id, { ...vendor, total: 0, unitCount: 0, byUnit: {}, categories: new Set() }]));
   const unitMap = new Map(unitList.map(unit => [unit.id, { ...unit, total: 0, sharedSpend: 0, vendorCount: 0 }]));
   for (const row of rows) {
-    if (!Number.isSafeInteger(row.amount)) throw new TypeError('Spend amounts must be safe integer sen.');
+    if (!Number.isSafeInteger(row.amount)) throw new TypeError('Spend amounts must be safe integer cents.');
     const vendor = vendorMap.get(row.vendorId);
     const unit = unitMap.get(row.unitId);
     if (!vendor || !unit) throw new TypeError('Spend records must reference a known unit and supplier.');

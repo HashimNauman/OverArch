@@ -1,114 +1,70 @@
-# OverArch
+# OverArch — Singapore LBU spend intelligence
 
-OverArch helps procurement teams explore international spend, identify shared suppliers across countries, and turn sourcing hypotheses into an action plan.
+OverArch compares procurement spend across **PAC, PS and ES**, three LBUs in **Singapore**. All amounts are in **SGD**. The demo contains fictional suppliers and synthetic spend, with no live company connections.
 
-This browser-local MVP starts with **12 countries**, **24 fictional suppliers**, and synthetic spend for **2025 and January–September 2026**. The default 2026 scope contains **RM58.64 million** in net spend. All amounts are expressed in **MYR**; the app performs no currency conversion and has no live finance, procurement, or supplier connections.
+[Open OverArch](https://hashimnauman.github.io/OverArch/)
 
-| Continent | Demo countries |
-| --- | --- |
-| Asia | Malaysia, Singapore, Japan, India |
-| Europe | United Kingdom, Germany, France, Netherlands |
-| North America | United States, Canada, Mexico, Costa Rica |
+The repository-root `index.html` is the complete standalone app, with embedded CSS, JavaScript, fonts, logo and data. Open it directly in a browser or publish it to GitHub Pages. No installation or server is required.
 
-The interface uses **Onyx `#01010D`**, **Electric Indigo `#6331FB`**, and **Tropical Mint `#88F9C0`**.
+## What you can do
 
-## Dashboard preview
+- Review the overall spend dashboard, monthly/cumulative trends and aligned prior-year comparison.
+- Compare PAC, PS and ES, keeping Singapore as their common geography.
+- Inspect shared suppliers and a supplier-by-LBU spend matrix.
+- Find category overlap where LBUs use different supplier panels, with practical validation steps.
+- Model a 1–12% what-if scenario and inspect the separate supplier-specific opportunity assumptions.
+- Add supplier opportunities to an action plan, assign owners, update status and export the plan.
+- Rename the demo LBUs, import a combined SGD CSV and export the selected scope.
 
-![OverArch global spend dashboard](docs/overarch-dashboard.jpg)
+The Onyx `#01010D`, Electric Indigo `#6331FB` and Tropical Mint `#88F9C0` design is retained. The world map is replaced with a Singapore LBU comparison.
 
-[Open OverArch on GitHub Pages](https://hashimnauman.github.io/OverArch/)
+## Demo and definitions
 
-The repository-root `index.html` is the complete standalone app. Download that one file and open it in a browser, or upload it to any static host. All styles, JavaScript, demo data, logos, map geometry, and fonts are embedded; no server, dependency installation, or external runtime assets are required.
+The sample has **3 LBUs, 18 fictional suppliers, 10 categories and 716 spend records** across 2025 and January–September 2026. Default 2026 net spend is **S$12.48m**. Eleven suppliers are shared across at least two LBUs; five serve all three. Six categories show differing supplier choices.
 
-## Explore the portfolio
+Net spend includes credits. A supplier is shared when it has positive net spend in at least two selected LBUs. Shared-supplier spend counts that supplier's scoped net spend once. It does not detect duplicate invoices. Selecting one LBU sets cross-LBU supplier and category overlap to zero.
 
-- **Spend overview:** Review overall net spend, shared-supplier spend, supplier concentration, category mix, and an interactive geographic footprint.
-- **Countries:** Compare purchasing patterns and net spend across the country portfolio.
-- **Supplier overlap:** Inspect suppliers used in multiple countries, including the supplier-by-country spend matrix.
-- **Opportunities:** Review distinct supplier sourcing hypotheses and inspect the assumptions behind their modeled ranges.
-- **Action plan:** Save opportunities, assign owners, update workflow status, and export the current plan scope.
+A category overlaps when two or more selected LBUs have positive net category spend. A supplier-panel signal requires multiple suppliers and at least one supplier used by just one LBU within that category. This prompts a scope and specification review; it does not prove consolidation is suitable.
 
-Focus the dashboard by continent, country, month, category, or supplier. Use the filter controls, country markers and tiles, category bars, and month buttons; active filter chips let you remove a focus. Supplier details include a dashboard focus action. Supplier overlap also supports text search.
+Each shared supplier contributes one primary modeled opportunity. Eligible spend is positive net supplier spend by LBU multiplied by an illustrative eligible share. Potential is eligible spend multiplied by an assumed improvement range. Imported suppliers default to 65% eligible share and a 3–6% range. These are working assumptions, not benchmarks, supplier offers or realized savings. Category signals add no savings estimate, so they are not double-counted with supplier opportunities. The dashboard's adjustable scenario is independent of supplier-specific ranges.
 
-The trend can switch between **monthly** and **cumulative** net spend. Prior-year comparison aligns matching calendar months and is disabled for **All periods**. Selecting a month focuses the other analysis while the trend retains the full selected reporting period for context.
+Compare contract terms, specifications, service levels, vendor legal identities, renewal dates and switching costs before acting. Spend alone does not establish unit-price differences.
 
-The **What if explorer** applies an adjustable **1–12%** improvement assumption to eligible shared-supplier spend. This scenario is independent of the vendor-specific modeled ranges; moving its slider does not change those ranges.
+## Import your three LBUs
 
-## Read the figures correctly
-
-**Net spend** includes credits. A **shared supplier** has positive net spend in at least two countries within the selected scope. Shared-supplier spend counts that supplier's scoped net spend once; it does **not** identify duplicate payments. Selecting one country therefore sets shared suppliers and cross-country opportunities to zero.
-
-**Modeled potential** is eligible spend multiplied by an assumed improvement range. Eligible spend uses positive net supplier spend by country and an illustrative eligible share. Each supplier contributes one primary opportunity. Imported suppliers use a default **65% eligible share** and **3–6% improvement range**. These assumptions are not market benchmarks.
-
-The supplier concentration chart shows the top five suppliers' share of **positive net supplier spend**, as labelled in the interface.
-
-All potential figures, including the adjustable scenario, are hypotheses rather than supplier quotes, committed benefits, or realized savings. Changing an action's status does not change this distinction. Validate supplier identity, comparable scope, contract terms, rates, local requirements, and switching costs before acting.
-
-## Import a spend CSV
-
-Choose **Import spend** and download the sample, or prepare:
+Combine their spend in one CSV, identifying each source LBU:
 
 ```csv
-month,country,continent,vendor,category,amount_myr
-2026-01,Malaysia,Asia,Nimbus Cloud,Cloud & software,12500.50
-2026-01,Germany,Europe,Nimbus Cloud,Cloud & software,18750.00
+month,lbu,country,vendor,category,amount_sgd
+2026-01,PAC,Singapore,Nimbus Cloud,Cloud & software,12500.50
+2026-01,PS,Singapore,Nimbus Cloud,Cloud & software,18750.00
+2026-01,ES,Singapore,Aster Data,Cloud & software,9200.00
 ```
 
-Use `YYYY-MM` months and plain MYR amounts with up to two decimal places. Negative credits are supported. Convert other currencies before importing.
+Required fields: `month,lbu,vendor,category,amount_sgd`. `business_unit` is also accepted instead of `lbu`. Optional `country` must identify Singapore; optional `currency` must be SGD. Convert amounts before importing. The app does not reinterpret MYR amounts as SGD.
 
-The required fields are `month`, `country`, `vendor`, `category`, and `amount_myr`. The `continent` field is inferred for the 12 demo countries, recognized by their displayed names or three-letter codes. Provide a standard continent for other countries; an omitted value is grouped as **Unspecified**. A declared continent must be consistent for each country. The legacy column name `business_unit` is accepted in place of `country` when no `country` column is present, and its values are treated as countries.
+Use YYYY-MM months and plain amounts with up to two decimal places. Credits are supported. Limits: 2 MB, 20,000 rows, 3 LBUs and 500 suppliers. Partial files with fewer than three LBUs are allowed. LBU, supplier and category names are matched after Unicode, case and whitespace normalization. Legal supplier aliases are not automatically resolved. Rows at the same month/LBU/supplier/category grain are aggregated; repeated invoices are not identified as duplicates.
 
-Imports support up to **2 MB**, **20,000 spend rows**, **50 countries**, and **500 suppliers**. Country and supplier matching uses normalized text, including case and whitespace normalization. It does not verify supplier legal identity or resolve supplier aliases. Rows with the same month, country, supplier, and category are summed; repeated source rows are not automatically identified as duplicate payments.
+Imported data and actions remain in browser memory for the current session. Refresh returns to the synthetic demo. Demo LBU names and action owners/statuses are stored in this browser when storage is available; there are no shared team records. CSV export makes text that could be interpreted as spreadsheet formulas literal.
 
-The 12 recognized countries receive approximate country-centroid map markers. Other imported countries can be analyzed and filtered but receive no map marker.
+## Build and verify
 
-Loading a CSV replaces the demo for the current session and starts an empty imported-data action plan. Imported spend and actions remain in browser memory and disappear on refresh. Export spend or the plan for your current scope before leaving. Refresh to return to the demo and its saved demo actions.
-
-Demo action owners and statuses are saved in this browser under the local storage key `overarch-country-plan-v2`. There are no shared team records.
-
-## Open or rebuild the single HTML file
-
-Open `index.html` directly in your browser. An optional local HTTP preview can be started from this project directory:
-
-```sh
-python3 -m http.server 4173
-```
-
-Open [OverArch locally](http://localhost:4173).
-
-To regenerate the standalone HTML after editing the modular source in `dist/`:
+Edit the modular source in `dist/`, then regenerate the standalone file:
 
 ```sh
 node scripts/build-html.mjs
 ```
 
-GitHub Pages publishes the root of `main` with Jekyll disabled by `.nojekyll`. Pushing an updated `index.html` updates the public app.
-
-Run the analytics and CSV utility checks:
+Run the focused analytics, import/export and standalone checks:
 
 ```sh
-node test-analytics.mjs && node test-import-export.mjs
+node test-analytics.mjs
+node test-import-export.mjs
+node test-standalone.mjs
 ```
 
-## Source and attribution
+GitHub Pages publishes the root of `main`, with Jekyll disabled by `.nojekyll`. Sites serves the modular app from `dist/`. The standalone file and modular preview are both verified.
 
-- `index.html` — self-contained app and GitHub Pages entry point
-- `scripts/build-html.mjs` — dependency-free standalone packager
-- `dist/index.html` — source HTML template
-- `dist/app.mjs` — navigation, filters, import/export, and action state
-- `dist/dashboard.mjs` — overall spend dashboard and interactive visualizations
-- `dist/data.mjs` — synthetic spend and country geography
-- `dist/analytics.mjs` — spend, opportunity, category, and trend calculations
-- `dist/utilities.mjs` — amount formatting and CSV utilities
-- `dist/styles.css` — base layout and responsive styling
-- `dist/theme.css` — dark palette and dashboard styling
-- `dist/world-land.mjs` — map land geometry
-- `test-analytics.mjs` and `test-import-export.mjs` — analytical and CSV utility checks
+Embedded DM Sans and Manrope subsets use SIL Open Font License 1.1. Notices are included in `assets/fonts/` and embedded in the HTML.
 
-The map land geometry derives from the public-domain **Natural Earth 1:110m land polygons**, distributed through [Natural Earth vector data](https://github.com/nvkelso/natural-earth-vector). Country markers are illustrative approximate centroids, rather than supplier or office locations.
-
-The embedded DM Sans and Manrope font subsets are redistributed under SIL Open Font License 1.1. License notices are included in `assets/fonts/` and embedded in the HTML.
-
-## Next steps
-
-A production product would add governed data ingestion and verified supplier matching, tenant authentication and access controls, shared durable records, and verified contract and rate evidence. Those capabilities are outside this MVP's scope.
+A production implementation would add approved data ingestion, verified supplier identities, access controls, shared durable records and evidence-backed contract comparisons.

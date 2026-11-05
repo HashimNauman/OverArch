@@ -1,36 +1,32 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { units, vendors, categories, continents, transactions } from './dist/data.mjs';
-import { filterRows, summarize, priorYearRows, groupTrend, categoryBreakdown } from './dist/analytics.mjs';
+import { filterRows, summarize, priorYearRows, groupTrend, categoryBreakdown, overlapAnalysis } from './dist/analytics.mjs';
 
 const current = filterRows(transactions, { period: '2026' });
 const report = summarize(current, units, vendors);
-assert.equal(units.length, 12);
-assert.equal(new Set(units.map(unit => unit.country)).size, 12);
-assert.deepEqual(continents, ['Asia', 'Europe', 'North America']);
-for (const continent of continents) assert.equal(units.filter(unit => unit.continent === continent).length, 4);
-assert.deepEqual(units.map(unit => unit.code), ['MYS','SGP','JPN','IND','GBR','DEU','FRA','NLD','USA','CAN','MEX','CRI']);
-assert.ok(units.every(unit => unit.name === unit.country && Number.isFinite(unit.lat) && Math.abs(unit.lat) <= 90 && Number.isFinite(unit.lon) && Math.abs(unit.lon) <= 180));
-assert.ok(transactions.every(row => row.continent === units.find(unit => unit.id === row.unitId).continent && row.country === units.find(unit => unit.id === row.unitId).country));
-assert.equal(createHash('sha256').update(JSON.stringify(transactions.map(({id,amount}) => [id,amount]))).digest('hex'), '1d5859532d64c302a47283b1d81d92cb83fc37ceae2b473c9e51328dac32bd77', 'Geographic redesign must preserve all transaction IDs and amounts.');
-assert.equal(vendors.length, 24);
-assert.equal(report.total, 5_864_000_000);
-assert.equal(report.total, report.unitStats.reduce((n, unit) => n + unit.total, 0));
-assert.equal(report.total, report.vendorStats.reduce((n, vendor) => n + vendor.total, 0));
-assert.equal(report.sharedSpend, report.unitStats.reduce((n, unit) => n + unit.sharedSpend, 0));
-assert.equal(report.estimatedHigh, report.opportunities.reduce((n, vendor) => n + vendor.estimateHigh, 0));
-assert.equal(new Set(transactions.map(row => row.id)).size, transactions.length);
-assert.ok(transactions.every(row => Number.isSafeInteger(row.amount) && categories.includes(row.category)));
-assert.ok(report.sharedCount > 0 && report.sharedCount < vendors.length);
-assert.equal(report.activeContinentCount, 3);
-assert.equal(report.continentStats.reduce((total, continent) => total + continent.total, 0), report.total);
-assert.ok(report.continentStats.every(continent => continent.countryCount === 4));
-for (const continent of continents) {
-  const scopedRows = filterRows(transactions, { continent });
-  const continentReport = summarize(scopedRows, units, vendors);
-  assert.equal(continentReport.activeUnitCount, 4);
-  assert.equal(continentReport.activeContinentCount, 1);
-  assert.equal(continentReport.total, report.continentStats.find(stat => stat.name === continent).total);
+assert.equal(units.length,3);
+assert.deepEqual(units.map(u=>u.name),['PAC','PS','ES']);
+assert.ok(units.every(u=>u.country==='Singapore'&&u.continent==='Asia'));
+assert.ok(transactions.every(r=>r.country==='Singapore'&&r.continent==='Asia'));
+assert.equal(vendors.length,18);
+assert.equal(report.total,1_248_000_000);
+assert.equal(report.total,report.unitStats.reduce((a,u)=>a+u.total,0));
+assert.equal(report.total,report.vendorStats.reduce((a,v)=>a+v.total,0));
+assert.equal(report.sharedSpend,report.unitStats.reduce((a,u)=>a+u.sharedSpend,0));
+assert.equal(report.estimatedHigh,report.opportunities.reduce((a,v)=>a+v.estimateHigh,0));
+assert.equal(report.sharedCount,11);
+assert.equal(report.vendorStats.filter(v=>v.unitCount===3).length,5);
+assert.equal(new Set(transactions.map(r=>r.id)).size,transactions.length);
+assert.ok(transactions.every(r=>Number.isSafeInteger(r.amount)&&categories.includes(r.category)));
+const overlaps=overlapAnalysis(current,units,vendors);
+assert.equal(overlaps.categories.length,10);
+assert.equal(overlaps.fragmentedCount,6);
+assert.equal(overlaps.pairs.length,3);
+assert.ok(overlaps.categories.every(c=>c.unitCount>=2));
+for(const pair of overlaps.pairs){
+ const shared=report.vendorStats.filter(v=>(v.byUnit[pair.a.id]||0)>0&&(v.byUnit[pair.b.id]||0)>0);
+ assert.equal(pair.supplierCount,shared.length);
+ assert.equal(pair.spend,shared.reduce((a,v)=>a+v.byUnit[pair.a.id]+v.byUnit[pair.b.id],0));
 }
 const monthly = groupTrend(current);
 assert.equal(monthly.length, 9);
@@ -47,11 +43,6 @@ assert.equal(combinedRows.length, 1);
 assert.ok(combinedRows.every(row => row.unitId === 'bu-03' && row.vendorId === 'v01' && row.continent === 'Asia' && row.month === '2026-01'));
 assert.equal(filterRows(transactions, { period: '2026', month: '2025-01' }).length, 0);
 assert.equal(filterRows(transactions, { period: 'all', month: '2025-01' }).length > 0, true);
-const withoutGeography = transactions.map(({ continent, country, ...row }) => row);
-assert.equal(filterRows(withoutGeography, { continent: 'Europe' }).length, filterRows(transactions, { continent: 'Europe' }).length);
-const importedRows = [{ month: '2026-01', unitId: 'imported-unit', vendorId: 'imported-vendor', category: 'Test', continent: 'Europe', country: 'Spain', amount: 12345 }];
-assert.equal(filterRows(importedRows, { continent: 'Europe' }).length, 1);
-assert.equal(filterRows(importedRows, { continent: 'Asia' }).length, 0);
 assert.deepEqual(groupTrend([]), []);
 assert.deepEqual(categoryBreakdown([]), []);
 
@@ -62,12 +53,12 @@ const sparseRows = [
   { id: 's4', month: '2025-02', unitId: 'bu-01', vendorId: 'v01', category: 'Cloud & software', amount: 20000 },
 ];
 const sparseFilters = { period: '2026', unit: 'bu-01' };
-assert.deepEqual(priorYearRows(sparseRows, sparseFilters).map(row => row.id), ['s3'], 'Unrelated Singapore February coverage must not enter Malaysia comparison.');
+assert.deepEqual(priorYearRows(sparseRows, sparseFilters).map(row => row.id), ['s3'], 'Unrelated PS February coverage must not enter the PAC comparison.');
 assert.equal(priorYearRows(sparseRows, sparseFilters).reduce((total, row) => total + row.amount, 0), 10000);
 assert.deepEqual(priorYearRows(sparseRows, { ...sparseFilters, month: '2026-02' }), [], 'A month with no current scoped rows has no comparable cohort.');
 assert.deepEqual(priorYearRows(sparseRows, { ...sparseFilters, month: '2026-02' }, { fullPeriod: true }).map(row => row.id), ['s3']);
-const priorJune = priorYearRows(transactions, { period: '2026', month: '2026-06', continent: 'Europe', supplier: 'v01' });
-assert.ok(priorJune.length > 0 && priorJune.every(row => row.month === '2025-06' && row.continent === 'Europe' && row.vendorId === 'v01'));
+const priorJune = priorYearRows(transactions, { period: '2026', month: '2026-06', continent: 'Asia', supplier: 'v01' });
+assert.ok(priorJune.length > 0 && priorJune.every(row => row.month === '2025-06' && row.continent === 'Asia' && row.vendorId === 'v01'));
 const priorFullPeriod = priorYearRows(transactions, { period: '2026', month: '2026-06' }, { fullPeriod: true });
 assert.deepEqual([...new Set(priorFullPeriod.map(row => row.month))].sort(), ['2025-01','2025-02','2025-03','2025-04','2025-05','2025-06','2025-07','2025-08','2025-09']);
 assert.deepEqual(priorYearRows(transactions, { period: 'all' }), []);
@@ -120,7 +111,7 @@ assert.equal(multiCategoryVendors[0].category, 'First category');
 
 const filterInputSnapshot = JSON.stringify(transactions);
 assert.ok(filterRows(transactions, { period: '2025' }).every(row => row.month.startsWith('2025')));
-assert.ok(filterRows(transactions, { category: 'Telecom', unit: 'bu-04' }).every(row => row.category === 'Telecom' && row.unitId === 'bu-04' && row.month.startsWith('2026')));
+assert.ok(filterRows(transactions, { category: 'Telecom', unit: 'bu-03' }).every(row => row.category === 'Telecom' && row.unitId === 'bu-03' && row.month.startsWith('2026')));
 assert.equal(filterRows(transactions, { period: 'all' }).length, transactions.length);
 assert.equal(filterRows(transactions, { period: 'all', search: 'not-a-supplier' }).length, 0);
 assert.ok(filterRows(transactions, { search: 'Nimbus' }).length > 0);
@@ -131,4 +122,22 @@ assert.ok(filterRows(enriched, { search: 'nimbus' }).length > 0);
 assert.deepEqual(summarize([], units, vendors), { total: 0, sharedSpend: 0, sharedCount: 0, activeUnitCount: 0, activeContinentCount: 0, vendorCount: 0, positiveSpend: 0, estimatedLow: 0, estimatedHigh: 0, vendorStats: [], unitStats: [], opportunities: [], continentStats: [] });
 assert.equal(JSON.stringify(transactions), filterInputSnapshot);
 assert.throws(() => summarize([{ ...base, unitId: 'a', amount: NaN }], dummyUnits, dummyVendors), /safe integer/);
-console.log(`Analytics checks passed: ${transactions.length} rows, 12 units, 24 suppliers; FY2026 Jan–Sep RM${(report.total / 100).toLocaleString('en-MY')}.`);
+// Distinguish category fragmentation from a common supplier and net out credits first.
+const catVendors=[{id:'x',name:'X'},{id:'y',name:'Y'}];
+const categoryRows=[
+ {month:'2026-01',unitId:'a',vendorId:'x',category:'Software',amount:10000},
+ {month:'2026-01',unitId:'b',vendorId:'y',category:'Software',amount:20000},
+];
+const split=overlapAnalysis(categoryRows,dummyUnits,catVendors);
+assert.equal(split.fragmentedCount,1);
+assert.equal(split.categories[0].sharedSupplierCount,0);
+assert.equal(split.categories[0].total,30000);
+assert.equal(split.pairs[0].supplierCount,0);
+const common=overlapAnalysis(categoryRows.map(r=>({...r,vendorId:'x'})),dummyUnits,catVendors);
+assert.equal(common.fragmentedCount,0);
+assert.equal(common.categories[0].sharedSupplierCount,1);
+assert.equal(common.pairs[0].spend,30000);
+const netted=overlapAnalysis([...categoryRows,{...categoryRows[1],amount:-21000}],dummyUnits,catVendors);
+assert.equal(netted.categories.length,0,'A net-negative LBU does not create category overlap.');
+assert.equal(overlapAnalysis(filterRows(transactions,{unit:'bu-01'}),units,vendors).categories.length,0);
+console.log(`Analytics checks passed: ${transactions.length} rows; PAC, PS, ES; Singapore; S$${report.total/100}.`);

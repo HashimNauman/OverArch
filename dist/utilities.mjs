@@ -1,13 +1,13 @@
-export const money = (sen, digits = 0) => 'RM' + new Intl.NumberFormat('en-MY', { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(sen / 100);
+export const money = (sen, digits = 0) => 'S$' + new Intl.NumberFormat('en-SG', { maximumFractionDigits: digits, minimumFractionDigits: digits }).format(sen / 100);
 export function compact(sen) {
   const amount = sen / 100;
-  if (Math.abs(amount) >= 1e6) return `RM${(amount / 1e6).toFixed(2)}m`;
-  if (Math.abs(amount) >= 1e3) return `RM${(amount / 1e3).toFixed(1)}k`;
+  if (Math.abs(amount) >= 1e6) return `S$${(amount / 1e6).toFixed(2)}m`;
+  if (Math.abs(amount) >= 1e3) return `S$${(amount / 1e3).toFixed(1)}k`;
   return money(sen, Number.isInteger(amount) ? 0 : 2);
 }
 export function range(low, high) {
-  if (low >= 1e8) return `RM${(low / 1e8).toFixed(2)}–${(high / 1e8).toFixed(2)}m`;
-  if (low >= 1e5) return `RM${(low / 1e5).toFixed(low < 1e6 ? 1 : 0)}–${(high / 1e5).toFixed(high < 1e6 ? 1 : 0)}k`;
+  if (low >= 1e8) return `S$${(low / 1e8).toFixed(2)}–${(high / 1e8).toFixed(2)}m`;
+  if (low >= 1e5) return `S$${(low / 1e5).toFixed(low < 1e6 ? 1 : 0)}–${(high / 1e5).toFixed(high < 1e6 ? 1 : 0)}k`;
   return `${money(low, Number.isInteger(low / 100) ? 0 : 2)}–${money(high, Number.isInteger(high / 100) ? 0 : 2).slice(2)}`;
 }
 export function csvCell(value) {
